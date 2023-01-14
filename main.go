@@ -8,6 +8,7 @@ import (
 	"net/http/pprof"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -25,6 +26,7 @@ import (
 // use the default option since it will cause some problems when config files
 // are used.
 type Options struct {
+	PidFile string `long:"pid-file" description:"Write pid to a file."`
 
 	// Configuration file path (yaml), the config path should be read without
 	// using goFlags in order not to have default values overriding yaml
@@ -226,6 +228,15 @@ func main() {
 }
 
 func run(options *Options) {
+	// write pid file
+	if options.PidFile != "" {
+		pid := strconv.Itoa(os.Getpid())
+		err := os.WriteFile(options.PidFile, []byte(pid), 0644)
+		if err != nil {
+			log.Fatalf("cannot create a pid file: %s", err)
+		}
+	}
+
 	if options.Verbose {
 		log.SetLevel(log.DEBUG)
 	}
