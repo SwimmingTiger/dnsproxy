@@ -75,6 +75,9 @@ type Options struct {
 	// QUICTracer is an optional object that allows tracing every QUIC
 	// connection and logging every packet that goes through.
 	QUICTracer logging.Tracer
+
+	// socks5 proxy
+	Socks5Proxy string
 }
 
 // Clone copies o to a new struct.  Note, that this is not a deep clone.
@@ -88,6 +91,7 @@ func (o *Options) Clone() (clone *Options) {
 		VerifyServerCertificate:   o.VerifyServerCertificate,
 		VerifyConnection:          o.VerifyConnection,
 		VerifyDNSCryptCertificate: o.VerifyDNSCryptCertificate,
+		Socks5Proxy:               o.Socks5Proxy,
 	}
 }
 

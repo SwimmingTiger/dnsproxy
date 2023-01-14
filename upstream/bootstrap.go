@@ -12,6 +12,7 @@ import (
 
 	"github.com/AdguardTeam/golibs/errors"
 	"github.com/AdguardTeam/golibs/log"
+	"golang.org/x/net/proxy"
 )
 
 // NextProtoDQ is the ALPN token for DoQ. During the connection establishment,
@@ -282,7 +283,17 @@ func (n *bootstrapper) createDialContext(addresses []string) (dialContext dialHa
 		for _, resolverAddress := range addresses {
 			log.Tracef("Dialing to %s", resolverAddress)
 			start := time.Now()
-			conn, err := dialer.DialContext(ctx, network, resolverAddress)
+			conn, err := func() (net.Conn, error) {
+				if n.options.Socks5Proxy != "" {
+					log.Tracef("Proxy via %s", n.options.Socks5Proxy)
+					proxyDialer, proxyErr := proxy.SOCKS5("tcp", n.options.Socks5Proxy, nil, nil)
+					if proxyErr != nil {
+						return nil, proxyErr
+					}
+					return proxyDialer.Dial(network, resolverAddress)
+				}
+				return dialer.DialContext(ctx, network, resolverAddress)
+			}()
 			elapsed := time.Since(start)
 			if err == nil {
 				log.Tracef(

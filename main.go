@@ -95,6 +95,9 @@ type Options struct {
 	// Bootstrap DNS
 	BootstrapDNS []string `yaml:"bootstrap" short:"b" long:"bootstrap" description:"Bootstrap DNS for DoH and DoT, can be specified multiple times (default: 8.8.8.8:53)"`
 
+	// SOCKS5 proxy for upstream
+	Socks5Proxy string `yaml:"socks5" long:"socks5" description:"SOCKS5 proxy for upstream"`
+
 	// Fallback DNS resolver
 	Fallbacks []string `yaml:"fallback" short:"f" long:"fallback" description:"Fallback resolvers to use when regular ones are unavailable, can be specified multiple times. You can also specify path to a file with the list of servers"`
 
@@ -350,6 +353,7 @@ func initUpstreams(config *proxy.Config, options *Options) {
 		InsecureSkipVerify: options.Insecure,
 		Bootstrap:          options.BootstrapDNS,
 		Timeout:            defaultTimeout,
+		Socks5Proxy:        options.Socks5Proxy,
 	}
 	upstreamConfig, err := proxy.ParseUpstreamsConfig(upstreams, upsOpts)
 	if err != nil {
