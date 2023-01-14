@@ -26,6 +26,8 @@ import (
 // use the default option since it will cause some problems when config files
 // are used.
 type Options struct {
+	// boot args
+	Daemon  bool   `long:"daemon" description:"Run in background."`
 	PidFile string `long:"pid-file" description:"Write pid to a file."`
 
 	// Configuration file path (yaml), the config path should be read without
@@ -188,6 +190,15 @@ const defaultTimeout = 10 * time.Second
 const defaultDNS64Prefix = "64:ff9b::/96"
 
 func main() {
+	// Run as a daemon.
+	// There are certain problems when the daemonization happens after goroutines are launched.
+	// So it's better to call daemon() as early as possible.
+	for _, arg := range os.Args {
+		if arg == "--daemon" {
+			daemon(1, 0)
+		}
+	}
+
 	options := &Options{}
 
 	for _, arg := range os.Args {
